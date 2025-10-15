@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"C_Cpp.autocomplete": "default",
+		"C_Cpp.errorSquiggles": "disabled",
+		"files.associations": {
+			"*.h": "c"
+		}
+	}
+}

@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        ".h": ".c",
+        "termios.h": "c",
+        "features.h": "c",
+        "ioctl.h": "c",
+        "ioctls.h": "c",
+        "ioctl-types.h": "c",
+        "ncurses.h": "c"
+    }
+}

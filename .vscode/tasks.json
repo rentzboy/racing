@@ -1,0 +1,50 @@
+{
+    // See https://code.visualstudio.com/docs/editor/tasks for more information
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "${workspaceRoot}/build.sh",
+            "args": [
+                "-t"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "icon": {
+                "id": "tools",
+                "color": "terminal.ansiBlue"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Build the racing project using gcc and ncurses"
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "hide": false,
+            "command": "rm",
+            "args": [
+                "-f",
+                "toni",
+                "chatgpt",
+                "gemini",
+                "grock"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "icon": {
+                "id": "trashcan",
+                "color": "terminal.ansiYellow"
+            },
+            "presentation": {
+                "reveal": "silent"
+            }
+        }
+    ]
+}
