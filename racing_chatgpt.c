@@ -57,7 +57,7 @@ static void end_ncurses() {
 static Road *road_create(int rows) {
     Road *r = malloc(sizeof(Road));
     r->len = rows;
-    r->centers = malloc(sizeof(int) * rows);
+    r->centers = malloc(sizeof(int) * rows); //IMPORTANTE: Multiplicar x el # de filas
     for (int i = 0; i < rows; ++i) r->centers[i] = 0;
     return r;
 }
@@ -71,16 +71,21 @@ static void road_free(Road *r) {
 /* shift road down by one and generate new center at top using simple random walk */
 static void road_scroll_and_generate(Road *r, int cols) {
     /* move down */
-    for (int i = r->len - 1; i > 0; --i) r->centers[i] = r->centers[i-1];
+    for (int i = r->len - 1; i > 0; --i){
+        r->centers[i] = r->centers[i-1];
+    }
 
-    /* generate new center */
+    /* generate new center for the new row */
     int prev = r->centers[1]; /* previous top-most meaningful */
-    if (prev == 0) prev = cols / 2;
+    if (prev == 0) 
+        prev = cols / 2;
     int change = (rand() % 7) - 3; /* -3..3 for stronger curves */
     int newc = prev + change;
     int margin = ROAD_HALF_WIDTH + 2;
-    if (newc < margin) newc = margin;
-    if (newc > cols - margin - 1) newc = cols - margin - 1;
+    if (newc < margin)
+        newc = margin;
+    if (newc > cols - margin - 1) 
+        newc = cols - margin - 1;
     r->centers[0] = newc;
 }
 
@@ -103,8 +108,10 @@ static void render(GameState *g, Road *road) {
         int center = road->centers[row];
         int left = center - ROAD_HALF_WIDTH;
         int right = center + ROAD_HALF_WIDTH;
-        if (left < 0) left = 0;
-        if (right >= cols) right = cols - 1;
+        if (left < 0) 
+            left = 0;
+        if (right >= cols)
+            right = cols - 1;
 
         /* Draw fill */
         for (int c = 0; c < cols; ++c) {
@@ -126,7 +133,7 @@ static void render(GameState *g, Road *road) {
     /* Draw player car - a 3x3 simple sprite */
     int px = g->player_x;
     int py = g->player_y;
-    char *car[] = { " ^ ", "/#\\", "/ \\" };
+    const char *car[] = { " ^ ", "/#\\", "/ \\" };
     for (int r = 0; r < 3; ++r) {
         for (int c = 0; c < 3; ++c) {
             int X = px - 1 + c;
@@ -146,12 +153,15 @@ static void render(GameState *g, Road *road) {
 static int check_collision(GameState *g, Road *r) {
     /* check the row where car is located. We test the car's center column */
     int check_row = g->player_y;
-    if (check_row < 0) return 1;
-    if (check_row >= r->len) check_row = r->len - 1;
+    if (check_row < 0) 
+        return 1;
+    if (check_row >= r->len)
+         check_row = r->len - 1;
     int center = r->centers[check_row];
     int left = center - ROAD_HALF_WIDTH;
     int right = center + ROAD_HALF_WIDTH;
-    if (g->player_x < left + 1 || g->player_x > right - 1) return 1;
+    if (g->player_x < left + 1 || g->player_x > right - 1)
+        return 1;
     return 0;
 }
 
@@ -161,7 +171,7 @@ static int clamp(int v, int a, int b) { if (v<a) return a; if (v>b) return b; re
 /* handle input: arrows and mouse */
 static void handle_input(GameState *g) {
     int ch;
-    MEVENT mev;
+    MEVENT mev; //mouse Event
     while ((ch = getch()) != ERR) {
         if (ch == 'q' || ch == 'Q') {
             g->running = 0;
@@ -218,7 +228,9 @@ int main() {
     road_init(road, g.cols);
 
     /* initial fill with center at middle */
-    for (int i = 0; i < road->len; ++i) road->centers[i] = g.cols / 2;
+    for (int i = 0; i < road->len; ++i) {
+        road->centers[i] = g.cols / 2;
+    }
 
     /* main loop */
     while (g.running) {

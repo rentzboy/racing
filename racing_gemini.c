@@ -8,6 +8,8 @@
 #define ROAD_WIDTH 20
 #define DELAY 60000
 
+/* NO FUNCIONA: NO ESTA HACIENDO EL SCROLL ...... */
+
 int main() {
     int max_y, max_x;
     int car_pos_x, car_pos_y;

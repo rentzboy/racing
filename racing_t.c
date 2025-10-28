@@ -16,28 +16,23 @@ typedef struct ship_s
 
 ship_t ship = {0, 0};
 clock_t start, end;
+int rows, cols;
 
-#define ROAD_WIDTH      20
-#define ROAD_HEIGHT     24
-#define ROAD_LANE_WIDTH 9
+#define ROAD_WIDTH      15
+
 #define LEVEL_EASY      300000
 #define LEVEL_MEDIUM    200000
 #define LEVEL_HARD      150000
 #define LEVEL_PRO       100000
-#define SCROLL_SPEED    1
 
 /* Function prototypes */
 void drawShip(void);
 void clearShip(void);
+void drawBackground(int first, int last);
 void setPositionShip(int x, int y);
 ship_t getPositionShip(void);
 void moveShip(int key);
 void scrolling(void);
-void drawBackground(int y);
-
-float time_elapsed[100];
-int counter = 0;
-int rows, cols;
 
 int main(void) {
     
@@ -67,11 +62,12 @@ int main(void) {
     mvwprintw(stdscr, 2, 0,"Columns: %d, Rows: %d\n", cols, rows);
     setPositionShip (cols/2, rows/2 + (rows/4));
     drawShip();
-    drawBackground(rows);
+    drawBackground(3, rows);
 
     /* Waiting for the user to press a key */
     while (!getch()) { }
     nodelay(stdscr, TRUE); // getch() TO BE NON-BLOCKING
+    drawBackground(1, rows);
  
     /* Game loop */ 
     while (1) {
@@ -81,7 +77,7 @@ int main(void) {
         moveShip(key);                                                           
         end = clock();
         //Ajust delay to be always const) devuelve la CPU durante x ms
-        usleep(LEVEL_PRO - (end - start)); 
+        usleep(LEVEL_EASY - (end - start)); 
         scrolling();
     }
     
@@ -96,9 +92,9 @@ int main(void) {
 
 void scrolling(void) {
 
-    clearShip();
+    clearShip();    
     wscrl(stdscr, -1);
-    drawBackground(1);  //PENDING: pintar la primera row
+    drawBackground(1, 1);  //pintar la primera row despues del scrolling
     drawShip();
 }
 
@@ -111,8 +107,6 @@ void clearShip(void) {
 }
 void drawShip(void) {
 
-    clearShip();
-
     mvwprintw(stdscr, 0, 0,"Ship position: %d, %d\n", ship.pos_y, ship.pos_x);
     mvwprintw(stdscr, ship.pos_y, ship.pos_x,"^");
     mvwprintw(stdscr, ship.pos_y+1, ship.pos_x-1, "/#\\");
@@ -120,6 +114,40 @@ void drawShip(void) {
     mvwprintw(stdscr, ship.pos_y+3, ship.pos_x-3, "/_*_*_\\");
     
     refresh();
+}
+
+void drawBackground(int first, int last) {
+
+    int previous = 70;
+    for (int i = first; i <= last; i++)
+    {
+        int x;
+        int random = rand() % 3; // 0, 1, 2
+
+        if (previous + random > 90)
+        {
+            x = previous - random;
+        }
+        else if (previous - random < 50)
+        {
+            x = previous + random;
+        }
+        else if (random % 2) //impar
+        {
+            x = previous - random;
+        }
+        else //par
+        {
+            x = previous + random;
+        }
+        
+        mvwprintw(stdscr, i, x, "|");
+        mvwhline(stdscr, i, 0, '*', x);
+        mvwprintw(stdscr, i, x + ROAD_WIDTH, "|");
+        mvwhline(stdscr, i, x + ROAD_WIDTH + 1 , '*', 100); //solo pinta hasta el boundary
+        
+        previous = x;
+    }
 }
 
 void setPositionShip(int x, int y) {
@@ -135,36 +163,31 @@ void moveShip(int key) {
     switch (key)
     {
     case KEY_LEFT:
+        clearShip();
         setPositionShip(-1, 0);
         drawShip();
         break;
     case KEY_RIGHT:
+        clearShip();
         setPositionShip(1, 0);
         drawShip();
         break;
     case KEY_DOWN:
+        clearShip();
         setPositionShip(0, 1);
         drawShip();
         break;
     case KEY_UP:
+        clearShip();
         setPositionShip(0, -1);
         drawShip();
         break;
+    case 32: // también podriamos haber puesto ' ' (= SPACE)
+        /* Para salir del sleep antes hay que enviar una señal tipo crtl+c */
+        sleep(5);
     default:
         break;
     }
     
     flushinp(); // Clear the input buffer to avoid retards
-}
-
-void drawBackground(int y) {
-    size_t random;
-    for (int i = 0; i <= y; i++)
-    {
-        random = rand() % 10;
-        mvwprintw(stdscr, i, 75 - (random % 10), "|");
-        mvwhline(stdscr, i, 0, '*', 75 - (random % 10));
-        mvwprintw(stdscr, i, 85 + (random % 10), "|");
-        mvwhline(stdscr, i, 85+1 + (random % 10), '*', 85);
-    }
 }
