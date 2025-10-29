@@ -7,6 +7,7 @@
 #include <ncurses.h>
 #include <termios.h>
 #include <time.h>
+#include <threads.h>
 
 typedef struct ship_s
 {
@@ -18,7 +19,8 @@ ship_t ship = {0, 0};
 clock_t start, end;
 int rows, cols;
 
-#define ROAD_WIDTH      15
+#define ROAD_WIDTH       12
+#define BACKGROUND_WIDTH rows/2
 
 #define LEVEL_EASY      300000
 #define LEVEL_MEDIUM    200000
@@ -68,6 +70,10 @@ int main(void) {
     while (!getch()) { }
     nodelay(stdscr, TRUE); // getch() TO BE NON-BLOCKING
     drawBackground(1, rows);
+
+    int thrd_create(thrd_t *thr, thrd_start_t func, void *arg );
+    thrd_t thread; //pointer to memory location to put the ID of the new thread 
+    thrd_create(&thread, (void*)scrolling, NULL);
  
     /* Game loop */ 
     while (1) {
@@ -91,6 +97,8 @@ int main(void) {
 }
 
 void scrolling(void) {
+
+    //usleep(LEVEL_EASY - (end - start)); 
 
     clearShip();    
     wscrl(stdscr, -1);
@@ -118,35 +126,40 @@ void drawShip(void) {
 
 void drawBackground(int first, int last) {
 
-    int previous = 70;
-    for (int i = first; i <= last; i++)
+    /* HAY QUE GUARDAR EL CENTER EN UNA GLOBAL, PARA */
+
+    static int center = 80; //IMPORTANTE: STATIC, 80 initial value must be constant.
+    int limit_right = 80 + BACKGROUND_WIDTH;
+    int limit_left = 80 - BACKGROUND_WIDTH;
+
+    for (int i = first; i <= last; i++) //pintar las filas
     {
         int x;
         int random = rand() % 3; // 0, 1, 2
 
-        if (previous + random > 90)
+        if (center + random > limit_right)
         {
-            x = previous - random;
+            x = center - random;
         }
-        else if (previous - random < 50)
+        else if (center - random < limit_left)
         {
-            x = previous + random;
+            x = center + random;
         }
-        else if (random % 2) //impar
+        else if (random % 2) //curva a la derecha
         {
-            x = previous - random;
+            x = center + random;
         }
-        else //par
+        else //curva a la izquierda
         {
-            x = previous + random;
+            x = center - random;
         }
         
-        mvwprintw(stdscr, i, x, "|");
-        mvwhline(stdscr, i, 0, '*', x);
-        mvwprintw(stdscr, i, x + ROAD_WIDTH, "|");
-        mvwhline(stdscr, i, x + ROAD_WIDTH + 1 , '*', 100); //solo pinta hasta el boundary
+        mvwprintw(stdscr, i, x - ROAD_WIDTH/2, "|");
+        mvwhline(stdscr, i, 0, '*', x - ROAD_WIDTH/2);
+        mvwprintw(stdscr, i, x + ROAD_WIDTH/2, "|");
+        mvwhline(stdscr, i, x + ROAD_WIDTH/2 + 1 , '*', 100); //solo pinta hasta el boundary
         
-        previous = x;
+        center = x;
     }
 }
 
