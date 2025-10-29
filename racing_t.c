@@ -7,6 +7,7 @@
 #include <ncurses.h>
 #include <termios.h>
 #include <time.h>
+#include <threads.h>
 
 typedef struct ship_s
 {
@@ -17,6 +18,7 @@ typedef struct ship_s
 ship_t ship = {0, 0};
 clock_t start, end;
 int rows, cols;
+short running = 0;
 
 #define ROAD_WIDTH      15
 
@@ -68,17 +70,29 @@ int main(void) {
     while (!getch()) { }
     nodelay(stdscr, TRUE); // getch() TO BE NON-BLOCKING
     drawBackground(1, rows);
+    running = 1;
+
+    //int thrd_create(thrd_t *thr, thrd_start_t func, void *arg );
+    thrd_t thread; //pointer to memory location to put the ID of the new thread 
+    /* Al poner el scroll en un hilo se raya todo, incluso sin llamarlo */
+    thrd_create(&thread, (void*)scrolling, NULL);
+
  
     /* Game loop */ 
     while (1) {
         start = clock();
         int key = getch();
-        if (key == 'q' || key == 'Q') break;                                                           
+        if (key == 'q' || key == 'Q') 
+        {
+            running = 0;
+            usleep(LEVEL_EASY - (end - start)); 
+            break; 
+        }                                                  
         moveShip(key);                                                           
         end = clock();
         //Ajust delay to be always const) devuelve la CPU durante x ms
-        usleep(LEVEL_EASY - (end - start)); 
-        scrolling();
+        //usleep(LEVEL_EASY - (end - start)); 
+        //scrolling();
     }
     
     /* Exit from ncurses */
@@ -91,11 +105,15 @@ int main(void) {
 }
 
 void scrolling(void) {
-
-    clearShip();    
-    wscrl(stdscr, -1);
-    drawBackground(1, 1);  //pintar la primera row despues del scrolling
-    drawShip();
+    while (running)
+    {
+        usleep(LEVEL_EASY - (end - start)); 
+        clearShip();    
+        wscrl(stdscr, -1);
+        drawBackground(1, 1);  //pintar la primera row despues del scrolling
+        drawShip();
+    }
+    
 }
 
 void clearShip(void) {
