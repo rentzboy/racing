@@ -8,6 +8,8 @@
      gcc -o road_game road_game.c -lncurses -O2
 */
 
+/* Solamente actualiza la posición de la nave con cada scroll */
+
 #include <ncurses.h>
 #include <stdlib.h>
 #include <time.h>

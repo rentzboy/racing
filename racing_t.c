@@ -32,7 +32,7 @@ void clearShip(void);
 void drawBackground(int first, int last);
 void setPositionShip(int x, int y);
 ship_t getPositionShip(void);
-void moveShip(int key);
+void handler_input(int key);
 void scrolling(void);
 
 int main(void) {
@@ -75,7 +75,7 @@ int main(void) {
         start = clock();
         int key = getch();
         if (key == 'q' || key == 'Q') break;                                                           
-        moveShip(key);                                                           
+        handler_input(key);                                                           
         end = clock();
         //Ajust delay to be always const) devuelve la CPU durante x ms
         usleep(LEVEL_EASY - (end - start)); 
@@ -165,7 +165,7 @@ ship_t getPositionShip(void) {
     return ship;
 }
 
-void moveShip(int key) {
+void handler_input(int key) {
     switch (key)
     {
     case KEY_LEFT:
