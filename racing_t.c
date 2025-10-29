@@ -7,7 +7,6 @@
 #include <ncurses.h>
 #include <termios.h>
 #include <time.h>
-#include <threads.h>
 
 typedef struct ship_s
 {
@@ -70,10 +69,6 @@ int main(void) {
     while (!getch()) { }
     nodelay(stdscr, TRUE); // getch() TO BE NON-BLOCKING
     drawBackground(1, rows);
-
-    int thrd_create(thrd_t *thr, thrd_start_t func, void *arg );
-    thrd_t thread; //pointer to memory location to put the ID of the new thread 
-    thrd_create(&thread, (void*)scrolling, NULL);
  
     /* Game loop */ 
     while (1) {
@@ -97,8 +92,6 @@ int main(void) {
 }
 
 void scrolling(void) {
-
-    //usleep(LEVEL_EASY - (end - start)); 
 
     clearShip();    
     wscrl(stdscr, -1);
